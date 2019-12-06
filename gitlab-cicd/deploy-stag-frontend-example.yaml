@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service-stag
+  labels:
+    app: frontend-service-stag
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    protocol: TCP
+  selector:
+    app: frontend-service-stag
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: frontend-service-stag
+spec:
+  selector:
+    matchLabels:
+      app: frontend-service-stag
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: frontend-service-stag
+    spec:
+      containers:
+      - image: IMAGEURI
+        name: cloud-stag-demo-frontend-service
+        ports:
+        - containerPort: 80
+      imagePullSecrets:
+      - name: regcred
